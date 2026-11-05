@@ -1,0 +1,1 @@
+{"expo":{"name":"MyMoney","slug":"mymoney","version":"0.1.0","orientation":"portrait","userInterfaceStyle":"light","android":{"package":"com.mymoney.local","edgeToEdgeEnabled":true},"plugins":["expo-sqlite",["expo-local-authentication",{"faceIDPermission":"Allow MyMoney to use device authentication to unlock your finance data."}],"expo-secure-store"]}}

@@ -1,0 +1,66 @@
+name: Build MyMoney standalone Android test APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'App.tsx'
+      - 'src/**'
+      - 'package.json'
+      - 'app.json'
+      - 'tsconfig.json'
+      - 'tests/**'
+      - '.github/workflows/android-apk.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run source and finance tests
+        run: |
+          npm run test:syntax
+          npm run test:imports
+          npm run test:backup-cleanup
+          python3 tests/ledger_smoke.py
+          python3 tests/phase18_sqlite.py
+      - name: TypeScript typecheck
+        run: npm run typecheck
+      - name: Expo dependency compatibility
+        run: npx expo install --check
+      - name: Generate Android native project
+        run: npx expo prebuild --platform android --non-interactive --no-install
+      - name: Configure local-test release signing
+        run: python3 tests/configure_test_signing.py android/app/build.gradle
+      - name: Build standalone release-mode APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Validate standalone APK archive and JS bundle
+        run: python3 tests/verify_apk.py android/app/build/outputs/apk/release/app-release.apk
+      - name: Verify APK signature
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          test -n "$APKSIGNER" && "$APKSIGNER" verify --verbose "$APK"
+      - name: Publish APK and SHA-256
+        run: sha256sum android/app/build/outputs/apk/release/app-release.apk > mymoney-release.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyMoney-Android-standalone-APK
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            mymoney-release.apk.sha256
+          if-no-files-found: error
+          retention-days: 7

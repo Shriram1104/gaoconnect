@@ -1,0 +1,32 @@
+{
+  "phase": 25,
+  "node": "v22.16.0",
+  "javaAvailable": true,
+  "androidSdkConfigured": false,
+  "androidNativeProjectPresent": false,
+  "dependenciesInstalled": false,
+  "missingDependencies": [
+    "expo",
+    "expo-status-bar",
+    "expo-sqlite",
+    "react",
+    "react-native",
+    "@react-native-picker/picker",
+    "react-native-safe-area-context",
+    "expo-file-system",
+    "expo-sharing",
+    "expo-document-picker",
+    "expo-crypto",
+    "expo-local-authentication",
+    "expo-secure-store",
+    "@noble/ciphers",
+    "@noble/hashes",
+    "base64-js",
+    "xlsx",
+    "typescript",
+    "@types/react",
+    "@types/base64-js"
+  ],
+  "typescriptTypecheck": "NOT_RUN",
+  "androidBuild": "NOT_RUN"
+}

@@ -1,0 +1,13 @@
+const fs=require('fs');
+const assert=require('assert');
+const src=fs.readFileSync('src/backup.ts','utf8');
+const start=src.indexOf('export async function restoreBackup');
+const restore=src.slice(start);
+assert(start>=0,'restoreBackup function missing');
+const tryAt=restore.indexOf(' try {');
+const sizeAt=restore.indexOf("picked.assets[0].size && picked.assets[0].size>MAX_FILE_SIZE");
+const finallyAt=restore.lastIndexOf(' finally {');
+const deleteAt=restore.indexOf('FileSystem.deleteAsync(pickedUri',finallyAt);
+assert(tryAt>=0 && sizeAt>tryAt,'backup size validation must be inside cleanup try block');
+assert(finallyAt>sizeAt && deleteAt>finallyAt,'picked backup must be deleted in finally');
+console.log('PASS: oversize backup rejection is covered by cached-file cleanup');
