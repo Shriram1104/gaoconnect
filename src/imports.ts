@@ -6,7 +6,7 @@ import { toByteArray } from 'base64-js';
 export type ImportedRow={date:string;note:string;kind:'INCOME'|'EXPENSE';paise:number;fingerprint:string;reviewReason?:string};
 const dbOpen=()=>SQLite.openDatabaseAsync('mymoney.db');
 export async function initImports(){const db=await dbOpen();
- await db.execAsync(`CREATE TABLE IF NOT EXISTS imported_transactions(fingerprint TEXT NOT NULL,account_id INTEGER NOT NULL REFERENCES accounts(id),transaction_id INTEGER NOT NULL REFERENCES transactions(id),PRIMARY KEY(account_id,fingerprint),created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);`);
+ await db.execAsync(`CREATE TABLE IF NOT EXISTS imported_transactions(fingerprint TEXT NOT NULL,account_id INTEGER NOT NULL REFERENCES accounts(id),transaction_id INTEGER NOT NULL REFERENCES transactions(id),created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(account_id,fingerprint));`);
  const cols=await db.getAllAsync<{name:string}>('PRAGMA table_info(imported_transactions)');
  if(!cols.some(c=>c.name==='account_id')){
   await db.withExclusiveTransactionAsync(async tx=>{
